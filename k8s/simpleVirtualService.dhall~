@@ -1,5 +1,0 @@
-let types = ./dhall-istio/types.dhall
-
-let defaults = ./dhall-istio/defaults.dhall
-
-in  λ(args : { name : Text, gateway : Text }) → defaults.virtualService
