@@ -1,0 +1,48 @@
+let types = ./dhall-kubernetes/types.dhall
+
+let defaults = ./dhall-kubernetes/defaults.dhall
+
+in    λ(args : { name : Text, tag : Text, port : Natural })
+	→   defaults.Deployment
+	  ⫽ { metadata =
+			defaults.ObjectMeta ⫽ { name = args.name }
+		, spec =
+			Some
+			(   defaults.DeploymentSpec
+			  ⫽ { replicas =
+					Some 1
+				, selector =
+					  defaults.LabelSelector
+					⫽ { matchLabels =
+						  [ { mapKey = "app", mapValue = "blog" } ]
+					  }
+				, template =
+					  defaults.PodTemplateSpec
+					⫽ { metadata =
+							defaults.ObjectMeta
+						  ⫽ { labels =
+								[ { mapKey = "app", mapValue = args.name } ]
+							, name =
+								args.name
+							}
+					  , spec =
+						  Some
+						  (   defaults.PodSpec
+							⫽ { containers =
+								  [   defaults.Container
+									⫽ { name =
+										  args.name
+									  , image =
+										  Some args.tag
+									  , ports =
+										  [   defaults.ContainerPort
+											⫽ { containerPort = args.port }
+										  ]
+									  }
+								  ]
+							  }
+						  )
+					  }
+				}
+			)
+		}
