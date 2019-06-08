@@ -49,7 +49,7 @@ endif
 
 export DOCKER_TAG = $(DOCKER_ACCOUNT)/$(DOCKER_BASE_TAG)$(if $(VERSION),-$(VERSION),)
 
-PRELUDE := $(mkfile_dir)/../k8s/dhall-lang/Prelude/package.dhall
+PRELUDE := $(dir $(mkfile_dir))/k8s/dhall-lang/Prelude/package.dhall
 MKDOCS := dhall-to-yaml --omitEmpty --documents <<< './service.dhall'
 APPLY := kubectl apply -f -
 
