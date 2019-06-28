@@ -45,6 +45,23 @@ else
 endif
 
 # ----------------------------------------------------------------------
+# Docker
+
+COMMIT_HASH = $(shell git rev-parse --short=10 HEAD)
+DOCKER_BASE_TAG = $(DOCKER_REPO):$(COMMIT_HASH)
+
+docker-build: DOCKER_TAG = $(DOCKER_ACCOUNT)/$(DOCKER_BASE_TAG)$(if $(VERSION),-$(VERSION),)
+docker-build:
+ifeq ($(shell docker images -q $(DOCKER_TAG) 2>/dev/null),"")
+	@echo $(shell docker images -q $(DOCKER_TAG) 2>/dev/null)
+	@echo Docker image tagged $(DOCKER_TAG) already exists
+else
+	-docker rm $(DOCKER_TAG) -f
+	docker build -t $(DOCKER_TAG) .
+endif
+	docker push $(DOCKER_TAG)
+
+# ----------------------------------------------------------------------
 # Deploy
 
 export DOCKER_TAG = $(DOCKER_ACCOUNT)/$(DOCKER_BASE_TAG)$(if $(VERSION),-$(VERSION),)
