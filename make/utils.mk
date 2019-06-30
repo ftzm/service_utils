@@ -81,7 +81,7 @@ deploy:
 	@$(MKDOCS) | $(APPLY)
 
 nix-print-deploy:
-	@$(NIX_DHALL) "$(MKDOCS)" | $(APPLY)
+	@$(NIX_DHALL) "$(MKDOCS)"
 
 nix-deploy:
 	@$(NIX_DHALL) "$(MKDOCS)" | $(APPLY)
