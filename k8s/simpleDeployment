@@ -14,7 +14,7 @@ in    λ(args : { name : Text, tag : Text, port : Natural })
 				, selector =
 					  defaults.LabelSelector
 					⫽ { matchLabels =
-						  [ { mapKey = "app", mapValue = "blog" } ]
+						  [ { mapKey = "app", mapValue = args.name } ]
 					  }
 				, template =
 					  defaults.PodTemplateSpec
