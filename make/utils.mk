@@ -48,9 +48,9 @@ endif
 # Docker
 
 COMMIT_HASH = $(shell git rev-parse --short=10 HEAD)
-DOCKER_BASE_TAG = $(DOCKER_REPO):$(COMMIT_HASH)
+DOCKER_VERSION = $(COMMIT_HASH)$(if $(VERSION),-$(VERSION),)
+export DOCKER_TAG = $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_VERSION)
 
-docker-build: DOCKER_TAG = $(DOCKER_ACCOUNT)/$(DOCKER_BASE_TAG)$(if $(VERSION),-$(VERSION),)
 docker-build:
 ifeq ($(shell docker images -q $(DOCKER_TAG) 2>/dev/null),"")
 	@echo $(shell docker images -q $(DOCKER_TAG) 2>/dev/null)
@@ -61,17 +61,27 @@ else
 endif
 	docker push $(DOCKER_TAG)
 
+nix-docker-build:
+	@docker load < $$(nix-build -A image --argstr version $(DOCKER_VERSION))
+	@docker push $(DOCKER_TAG)
+
 # ----------------------------------------------------------------------
 # Deploy
 
-export DOCKER_TAG = $(DOCKER_ACCOUNT)/$(DOCKER_BASE_TAG)$(if $(VERSION),-$(VERSION),)
 
 export DHALL_PRELUDE := $(mkfile_dir)../k8s/dhall-lang/Prelude/package.dhall
 MKDOCS := dhall-to-yaml --omitEmpty --documents <<< './service.dhall'
 APPLY := kubectl apply -f -
+NIX_DHALL := nix-shell -p '(import <dhall> {}).linux-dhall-json' --command
+
+print-deploy:
+	@$(MKDOCS)
 
 deploy:
 	@$(MKDOCS) | $(APPLY)
 
-print-deploy:
-	@$(MKDOCS)
+nix-print-deploy:
+	@$(NIX_DHALL) "$(MKDOCS)" | $(APPLY)
+
+nix-deploy:
+	@$(NIX_DHALL) "$(MKDOCS)" | $(APPLY)
