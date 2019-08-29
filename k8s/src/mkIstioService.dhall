@@ -1,8 +1,8 @@
-let prelude = ./dhall-kubernetes/Prelude.dhall
+let prelude = env:DHALL_PRELUDE
 
-let types = ./dhall-kubernetes/types.dhall
+let types = env:DHALL_KUBERNETES_TYPES
 
-let defaults = ./dhall-kubernetes/defaults.dhall
+let defaults = env:DHALL_KUBERNETES_DEFAULTS
 
 let IstioPort = { targetPort : Natural, port : Natural, name : Text }
 

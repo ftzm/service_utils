@@ -1,10 +1,10 @@
-let k = ./dhall-kubernetes/types.dhall
+let k = env:DHALL_KUBERNETES_TYPES
 
 let i = ./dhall-istio/types.dhall
 
-let simpleDeployment = ./simpleDeployment
+let simpleDeployment = ./simpleDeployment.dhall
 
-let mkIstioService = ./mkIstioService
+let mkIstioService = ./mkIstioService.dhall
 
 let simpleVirtualService = ./simpleVirtualService.dhall
 

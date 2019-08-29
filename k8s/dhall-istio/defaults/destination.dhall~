@@ -1,2 +1,0 @@
-  { host = "CHANGEME", subset = None Text, port = 80 }
-: ../types/Destination.dhall

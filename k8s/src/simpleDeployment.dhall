@@ -1,6 +1,5 @@
-let types = ./dhall-kubernetes/types.dhall
-
-let defaults = ./dhall-kubernetes/defaults.dhall
+let types = env:DHALL_KUBERNETES_TYPES
+let defaults = env:DHALL_KUBERNETES_DEFAULTS
 
 in    λ(args : { name : Text, tag : Text, port : Natural })
 	→   defaults.Deployment

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -u
+
+: "$DHALL_KUBERNETES_TYPES"
+: "$DHALL_KUBERNETES_DEFAULTS"
+: "$DHALL_PRELUDE"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+$DHALL_YAML --explain --omitEmpty --documents <<< "${SCRIPT_DIR}/mkService.dhall $1"

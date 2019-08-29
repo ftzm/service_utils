@@ -1,7 +1,0 @@
-[submodule "k8s/dhall-kubernetes"]
-    path = k8s/dhall-kubernetes
-    url = git://github.com/dhall-lang/dhall-kubernetes
-
-[submodule "k8s/dhall-lang"]
-    path = k8s/dhall-lang
-    url = git://github.com/dhall-lang/dhall-lang
