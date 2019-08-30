@@ -69,11 +69,18 @@ nix-docker-build:
 # Deploy
 
 
+WRITE_GH := $(mkfile_dir)/scripts/write_gh.sh
 MKDOCS := mkService './service.dhall'
 APPLY := kubectl apply -f -
+GIT_USER := $(shell git config --global user.name)
+GIT_EMAIL := $(shell git config --global user.email)
+GH_TOKEN = $(shell pass github-pat 2>/dev/null)
 
 print-deploy:
 	@$(MKDOCS)
 
 deploy:
 	@$(MKDOCS) | $(APPLY)
+
+register:
+	@$(MKDOCS) | $(WRITE_GH) $(GIT_USER) $(GIT_EMAIL) $(GH_TOKEN) manifests workloads/$(NAME).yml
