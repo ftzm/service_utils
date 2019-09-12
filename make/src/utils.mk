@@ -15,6 +15,10 @@ RELEASE_TYPE = $(shell $(COMMIT_RELEASE))
 GIT_TAG_CURRENT = $(shell git describe --exact-match --abbrev=0 2>/dev/null)
 GIT_TAG_PREVIOUS = $(shell git describe --abbrev=0 HEAD^ 2>/dev/null)
 
+# Git hygiene
+GIT_DIRTY = $(shell git status -s)
+REQUIRE_CLEAN_GIT = $(if $(GIT_DIRTY),$(error A clean git working tree is required),)
+
 # Generate new version tag from release type and previous tag
 SEMVER := $(mkfile_dir)/scripts/semver.sh
 FLAG.patch := p
@@ -31,14 +35,15 @@ GIT_TAG_NEW = $(shell $(SEMVER) -$(SEMVER_FLAG) $(PREVIOUS_VERSION))
 VERSION = $(if $(RELEASE_TYPE),$(or $(GIT_TAG_CURRENT), $(GIT_TAG_NEW)),)
 
 tag:
+	$(REQUIRE_CLEAN_GIT)
 ifneq ($(VERSION),)
   ifneq ($(GIT_TAG_CURRENT),)
-	@echo Current commit tagged already tagged $(GIT_TAG_CURRENT), skipping
+	@echo Current commit already tagged $(GIT_TAG_CURRENT), skipping
   else
 	@echo Current commit flagged  with release: $(RELEASE_TYPE)
 	@echo Previous version: $(PREVIOUS_VERSION)
 	@echo Tagging with new version: $(VERSION)
-	git tag -a $(VERSION) -m "Official release $(VERSION)"
+	@git tag -a $(VERSION) -m "Official release $(VERSION)"
   endif
 else
 	@echo Current commit not flagged for release
@@ -48,22 +53,31 @@ endif
 # Docker
 
 COMMIT_HASH = $(shell git rev-parse --short=10 HEAD)
-DOCKER_VERSION = $(COMMIT_HASH)$(if $(VERSION),-$(VERSION),)
+DOCKER_VERSION = $(if $(VERSION),$(VERSION)-,)$(COMMIT_HASH)
 export DOCKER_TAG = $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_VERSION)
 
 docker-build:
+	$(REQUIRE_CLEAN_GIT)
 ifeq ($(shell docker images -q $(DOCKER_TAG) 2>/dev/null),"")
 	@echo $(shell docker images -q $(DOCKER_TAG) 2>/dev/null)
 	@echo Docker image tagged $(DOCKER_TAG) already exists
 else
-	-docker rm $(DOCKER_TAG) -f
+	@docker rm $(DOCKER_TAG) -f
 	docker build -t $(DOCKER_TAG) .
 endif
+
+docker-publish:
+	$(if $(GIT_TAG_CURRENT),,$(error Unversioned docker images cannot be published.))
 	docker push $(DOCKER_TAG)
 
 nix-docker-build:
-	@docker load < $$(nix-build -A image --argstr version $(DOCKER_VERSION))
+ifeq ($(shell docker images -q $(DOCKER_TAG) 2>/dev/null),"")
+	@echo $(shell docker images -q $(DOCKER_TAG) 2>/dev/null)
+	@echo Docker image tagged $(DOCKER_TAG) already exists
+else
+	@docker load < $$(nix-build --no-out-link -A image --argstr version $(DOCKER_VERSION))
 	@docker push $(DOCKER_TAG)
+endif
 
 # ----------------------------------------------------------------------
 # Deploy
@@ -79,7 +93,7 @@ GH_TOKEN = $(shell pass github-pat 2>/dev/null)
 print-deploy:
 	@$(MKDOCS)
 
-deploy:
+kubectl-deploy:
 	@$(MKDOCS) | $(APPLY)
 
 register:
