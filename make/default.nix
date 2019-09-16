@@ -13,5 +13,6 @@ in
       mkdir $out
       cp -r $src/* $out
       substituteInPlace $out/utils.mk --replace mkService ${configurator}/mkService
+      substituteInPlace $out/utils.mk --replace getKey ${configurator}/getKey
     '';
   }

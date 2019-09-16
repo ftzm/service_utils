@@ -1,7 +1,8 @@
 { pkgs ? import <nixpkgs> { }, mkDerivation ? pkgs.stdenv.mkDerivation}:
 
 let
-  dhall_bins = import ./dhall_bins.nix {};
+  dhall_json_bins = import ./dhall_json_bins.nix {};
+  dhall_bin = import ./dhall_bin.nix {};
   dhall_repo = pkgs.fetchFromGitHub {
     owner = "dhall-lang";
     repo = "dhall-lang";
@@ -27,10 +28,14 @@ in
     buildPhase = ''
       mkdir $out
       cp -r $src/* $out
+
       wrapProgram $out/mkService \
         --set DHALL_KUBERNETES_TYPES ${dk_types} \
         --set DHALL_KUBERNETES_DEFAULTS ${dk_defaults} \
         --set DHALL_PRELUDE ${dhall_prelude} \
-        --set DHALL_YAML ${dhall_bins}/bin/dhall-to-yaml
+        --set DHALL_YAML ${dhall_json_bins}/bin/dhall-to-yaml
+
+      wrapProgram $out/getKey \
+        --set DHALL ${dhall_bin}/bin/dhall
     '';
   }

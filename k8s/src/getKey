@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -u
+
+$DHALL  <<< "($1).$2" | sed 's/\"//g'

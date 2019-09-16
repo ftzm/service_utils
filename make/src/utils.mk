@@ -52,6 +52,12 @@ endif
 # ----------------------------------------------------------------------
 # Docker
 
+
+# ----------------------------------------------------------------------
+DOCKER_REPO := $(shell getKey ./service.dhall repo)
+DOCKER_NAME := $(shell getKey ./service.dhall name)
+# ----------------------------------------------------------------------
+
 COMMIT_HASH = $(shell git rev-parse --short=10 HEAD)
 DOCKER_VERSION = $(if $(VERSION),$(VERSION)-,)$(COMMIT_HASH)
 export DOCKER_TAG = $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_VERSION)
@@ -97,4 +103,4 @@ kubectl-deploy:
 	@$(MKDOCS) | $(APPLY)
 
 register:
-	@$(MKDOCS) | $(WRITE_GH) $(GIT_USER) $(GIT_EMAIL) $(GH_TOKEN) manifests workloads/$(NAME).yml
+	@$(MKDOCS) | $(WRITE_GH) $(GIT_USER) $(GIT_EMAIL) $(GH_TOKEN) manifests workloads/$(DOCKER_NAME).yml

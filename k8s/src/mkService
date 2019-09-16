@@ -8,4 +8,4 @@ set -u
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-$DHALL_YAML --explain --omitEmpty --documents <<< "${SCRIPT_DIR}/mkService.dhall $1"
+$DHALL_YAML --explain --omitEmpty --documents <<< "${SCRIPT_DIR}/mkService.dhall $1 $"

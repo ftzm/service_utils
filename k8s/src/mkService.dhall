@@ -11,10 +11,10 @@ let simpleVirtualService = ./simpleVirtualService.dhall
 let ServiceSpec =
 	  { name :
 		  Text
+	  , repo :
+		  Text
 	  , port :
 		  Natural
-	  , tag :
-		  Text
 	  , gateway :
 		  Text
 	  , hosts :
@@ -30,11 +30,11 @@ let doc =
 		  i.VirtualService
 	  >
 
+let tag = env:DOCKER_TAG as Text
+
 in    λ(spec : ServiceSpec)
 	→ [ doc.Deployment
-		( simpleDeployment
-		  { name = spec.name, port = spec.port, tag = spec.tag }
-		)
+		(simpleDeployment { name = spec.name, port = spec.port, tag = tag })
 	  , doc.Service
 		( mkIstioService
 		  { name =
