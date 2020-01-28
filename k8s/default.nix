@@ -1,23 +1,14 @@
 { pkgs ? import <nixpkgs> { }, mkDerivation ? pkgs.stdenv.mkDerivation}:
 
 let
-  dhall_json_bins = import ./dhall_json_bins.nix {};
+  dhall_yaml_bins = import ./dhall_yaml_bins.nix {};
   dhall_bin = import ./dhall_bin.nix {};
-  dhall_repo = pkgs.fetchFromGitHub {
-    owner = "dhall-lang";
-    repo = "dhall-lang";
-    rev = "68fa5fd7aecafd56da107922b7386cd10688ca95";
-    sha256 = "0fkmi5zvdv93mpazzj7fl19lv2wnmyf0dm09id2xvabqvvqw3zvz";
-  };
+  dhall_repo = import ./dhall_repo.nix {};
+  dhall_kubernetes = import ./dhall_kubernetes.nix {};
   dhall_prelude = "${dhall_repo}/Prelude/package.dhall";
-  dhall_kubernetes = pkgs.fetchFromGitHub {
-    owner = "dhall-lang";
-    repo = "dhall-kubernetes";
-    rev = "4ad58156b7fdbbb6da0543d8b314df899feca077";
-    sha256 = "12fm70qbhcainxia388svsay2cfg9iksc6mss0nvhgxhpypgp8r0";
-  };
   dk_types = "${dhall_kubernetes}/types.dhall";
   dk_defaults = "${dhall_kubernetes}/defaults.dhall";
+  dk_1_17 = "${dhall_kubernetes}/1.17/package.dhall";
 in
   mkDerivation {
     name = "configurator";
@@ -30,10 +21,11 @@ in
       cp -r $src/* $out
 
       wrapProgram $out/mkService \
+        --set DHALL_KUBERNETES ${dk_1_17} \
         --set DHALL_KUBERNETES_TYPES ${dk_types} \
         --set DHALL_KUBERNETES_DEFAULTS ${dk_defaults} \
         --set DHALL_PRELUDE ${dhall_prelude} \
-        --set DHALL_YAML ${dhall_json_bins}/bin/dhall-to-yaml
+        --set DHALL_YAML ${dhall_yaml_bins}/bin/dhall-to-yaml
 
       wrapProgram $out/getKey \
         --set DHALL ${dhall_bin}/bin/dhall

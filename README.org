@@ -2,6 +2,12 @@
 This reposity contains utilities for building and deploying projects meant to run in my own personal kubernetes cluster. They may be of inspiration to others.
 The main technologies at play are Make, Nix, and Dhall.
 
+* What this includes
+1. Semantic version tagging of git and docker images.
+2. Bootstrapping docker image generation via Nix.
+3. Generation of Kubernetes yamls via Dhall.
+4. Deployment of Kubernetes yamls via kubectl or flux.
+
 * Requirements
 - Nix
 - A service.dhall file containing the following record of the following type:
@@ -26,9 +32,3 @@ The primary way to plug this into a project is to import it in a makefile.
 2. If installed via nix: ~include $(shell print-utils-make)~
 
 This will make the utility make functions defined by this repository available in including repo.
-
-* What this includes
-1. Semantic version tagging of git and docker images.
-2. Bootstrapping docker image generation via Nix.
-3. Generation of Kubernetes yamls via Dhall.
-4. Deployment of Kubernetes yamls via kubectl or flux.
