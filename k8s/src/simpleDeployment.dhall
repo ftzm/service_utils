@@ -1,7 +1,7 @@
 let kubernetes = env:DHALL_KUBERNETES
 
 in    λ(args : { name : Text, tag : Text, port : Natural })
-	→ defaults.Deployment::{
+	→ kubernetes.Deployment::{
 	  , metadata = kubernetes.ObjectMeta::{ name = args.name }
 	  , spec =
 		  Some
